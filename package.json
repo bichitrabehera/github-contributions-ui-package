@@ -28,11 +28,28 @@
   },
   "keywords": [
     "github",
-    "react",
-    "contributions",
-    "graph",
-    "ui"
+    "github contributions",
+    "react component",
+    "github graph",
+    "heatmap",
+    "portfolio",
+    "nextjs",
+    "opensource"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bichitrabehera/github-contributions-ui.git"
+  },
+  "homepage": "https://github.com/bichitrabehera/github-contributions-ui#readme",
+  "bugs": {
+    "url": "https://github.com/bichitrabehera/github-contributions-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "license": "MIT",
   "peerDependencies": {
     "react": ">=18"
@@ -43,7 +60,6 @@
     "@types/react": "^18.0.0",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.6",
-    "react": ">=18",
     "tailwindcss": "^4.2.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
