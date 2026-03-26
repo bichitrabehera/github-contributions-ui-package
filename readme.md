@@ -61,7 +61,7 @@ export default App;
 | Prop       | Type                                      | Required | Description                 |
 | ---------- | ----------------------------------------- | -------- | --------------------------- |
 | `username` | string                                    | ✅        | GitHub username             |
-| `theme`    | `"light" \| "dark" \| "blue" \| "purple"` | ❌        | UI theme (default: `light`) |
+| `theme`    | `"light" \| "dark" \| "blue" \| "purple"` | ❌        | UI theme (default: `dark`) |
 
 ### Example
 

@@ -8,7 +8,7 @@ const App = () => {
       <h1 style={{ marginBottom: 12, fontSize: 18 }}>Playground</h1>
       <GithubActivity username="bichitrabehera"/>
       <div style={{ height: 24 }} />
-      <GithubActivity username="octocat" theme="blue" />
+      <GithubActivity username="bichitrabehera" theme="purple" />
     </div>
   );
 };
