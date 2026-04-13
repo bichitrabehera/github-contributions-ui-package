@@ -10,10 +10,12 @@ import { Skeleton } from "./components/Skeleton";
 import { Day } from "./types/Day";
 
 type Theme = "light" | "dark" | "blue" | "purple" | "gray";
+type Background = "black" | "white";
 
 interface Props {
   username: string;
   theme?: Theme;
+  background?: Background;
   className?: string;
 }
 
@@ -40,10 +42,13 @@ function toLevel(count: number): 0 | 1 | 2 | 3 | 4 {
   return 4;
 }
 
-// ─── YearPill ─────────────────────────────────────────────────────────────────
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
-function GithubActivity({ username, theme = "dark", className }: Props) {
+function GithubActivity({ 
+  username, 
+  theme = "dark", 
+  background = "black",
+  className 
+}: Props) {
   useEffect(() => {
     if (typeof document === "undefined") return;
     const id = "github-contributions-ui-inline";
@@ -66,6 +71,18 @@ function GithubActivity({ username, theme = "dark", className }: Props) {
   );
 
   const colors = COLOR_MAP[theme] ?? COLOR_MAP.dark;
+  const isDark = background === "black";
+
+  // Background and text colors based on mode
+  const bgClass = isDark ? "bg-black" : "bg-white";
+  const cardBgClass = isDark ? "bg-neutral-900" : "bg-neutral-50";
+  const cardBorderClass = isDark 
+    ? "border-neutral-800/60" 
+    : "border-neutral-200/60";
+  const textPrimaryClass = isDark ? "text-neutral-50" : "text-neutral-950";
+  const textSecondaryClass = isDark ? "text-neutral-400" : "text-neutral-600";
+  const textLabelClass = isDark ? "text-neutral-500" : "text-neutral-500";
+  const outlineColor = isDark ? "#f0f0f0" : "#333";
 
   useEffect(() => {
     if (!username) return;
@@ -136,59 +153,92 @@ function GithubActivity({ username, theme = "dark", className }: Props) {
     () => monthLabels(grid, selectedYear),
     [grid, selectedYear],
   );
-  const outlineColor = theme === "light" ? "#333" : "#f0f0f0";
 
   return (
     <section
-      className={["gcu w-full font-mono", className].filter(Boolean).join(" ")}
-      style={{}}
+      className={["gcu w-full", bgClass, className].filter(Boolean).join(" ")}
+      style={{ padding: "1.5rem" }}
     >
-      {/* Stats */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 mb-4 text-xs text-neutral-400">
-        {loading
-          ? "Loading…"
-          : error
-            ? "Unavailable"
-            : `${total?.toLocaleString()} contributions ${selectedYear === "last" ? "in the last year" : `in ${selectedYear}`}`}
+      {/* Header Section */}
+      <div className="mb-6">
+        <h2 className={`text-sm font-semibold ${textPrimaryClass} mb-3`}>
+          Contributions
+        </h2>
 
-        {bestDay && !loading && (
-          <span className="flex items-center gap-1.5">
-            <span
-              className="inline-block w-[10px] h-[10px] rounded-[2px]"
-              style={{ backgroundColor: colors[4] }}
-            />
-            Best day:
-            <span className="text-neutral-200 font-semibold">
-              {bestDay.count} contributions on {bestDay.date}
+        {/* Stats */}
+        <div className="flex flex-wrap items-baseline gap-x-8 gap-y-2">
+          <div className="flex flex-col">
+            <span className={`text-xs ${textLabelClass} uppercase tracking-wide mb-1`}>
+              Total
             </span>
-          </span>
-        )}
+            {loading ? (
+              <div className={`w-20 h-6 ${isDark ? "bg-neutral-800" : "bg-neutral-200"} rounded animate-pulse`} />
+            ) : error ? (
+              <span className={`text-sm ${textSecondaryClass} italic`}>
+                Unavailable
+              </span>
+            ) : (
+              <span className={`text-2xl font-bold ${textPrimaryClass}`}>
+                {total?.toLocaleString()}
+              </span>
+            )}
+          </div>
+
+          {bestDay && !loading && (
+            <div className="flex flex-col">
+              <span className={`text-xs ${textLabelClass} uppercase tracking-wide mb-1`}>
+                Best Day
+              </span>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-3 h-3 rounded-sm flex-shrink-0"
+                  style={{ backgroundColor: colors[4] }}
+                />
+                <span className={`text-sm ${textPrimaryClass} font-medium`}>
+                  {bestDay.count} on {bestDay.date}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col">
+            <span className={`text-xs ${textLabelClass} uppercase tracking-wide mb-1`}>
+              Period
+            </span>
+            <span className={`text-sm ${textPrimaryClass} font-medium`}>
+              {selectedYear === "last" ? "Last 12 months" : String(selectedYear)}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Card */}
-      <div className="border border-neutral-800 rounded-xl p-4 bg-neutral-950">
+      {/* Main Card */}
+      <div className={`rounded-lg border ${cardBorderClass} ${cardBgClass} p-5 shadow-lg`}>
         {error ? (
-          <p className="text-sm text-neutral-400 italic">
-            GitHub activity unavailable.
-          </p>
+          <div className="py-8 flex flex-col items-center justify-center">
+            <p className={`text-sm ${textSecondaryClass}`}>
+              Unable to fetch GitHub activity
+            </p>
+          </div>
         ) : loading ? (
           <Skeleton />
         ) : (
           <>
-            <div className="overflow-x-auto pb-1">
+            {/* Contribution Grid */}
+            <div className="overflow-x-auto -mx-5 -my-5 px-5 py-5">
               <div
                 className="relative"
                 style={{ minWidth: grid.length * STEP + DAY_COL_W + 8 }}
               >
                 {/* Month labels */}
                 <div
-                  className="relative h-[18px] mb-1"
+                  className="relative h-6 mb-3"
                   style={{ marginLeft: DAY_COL_W }}
                 >
                   {labels.map(({ label, col }) => (
                     <span
                       key={label + col}
-                      className="absolute text-[11px] text-neutral-400"
+                      className={`absolute text-xs font-medium ${textLabelClass}`}
                       style={{ left: col * STEP }}
                     >
                       {label}
@@ -197,15 +247,15 @@ function GithubActivity({ username, theme = "dark", className }: Props) {
                 </div>
 
                 {/* Grid */}
-                <div className="flex gap-[3px]">
+                <div className="flex gap-1">
                   <div
-                    className="flex flex-col gap-[3px]"
+                    className="flex flex-col gap-1"
                     style={{ width: DAY_COL_W - GAP }}
                   >
                     {Array.from({ length: 7 }).map((_, i) => (
                       <div
                         key={i}
-                        className="h-[13px] text-[10px] text-right pr-1.5 text-neutral-400"
+                        className={`h-3 text-xs text-right pr-2 ${textLabelClass} font-medium`}
                       >
                         {DAY_LABELS[i] ?? ""}
                       </div>
@@ -213,11 +263,11 @@ function GithubActivity({ username, theme = "dark", className }: Props) {
                   </div>
 
                   {grid.map((week, wi) => (
-                    <div key={wi} className="flex flex-col gap-[3px]">
+                    <div key={wi} className="flex flex-col gap-1">
                       {week.map((day, di) => (
                         <div
                           key={di}
-                          className="w-[13px] h-[13px] rounded-[3px] transition-transform hover:scale-125"
+                          className="w-3 h-3 rounded transition-all duration-200 hover:scale-150 hover:shadow-lg cursor-pointer"
                           style={{
                             backgroundColor: day
                               ? colors[day.level]
@@ -226,7 +276,7 @@ function GithubActivity({ username, theme = "dark", className }: Props) {
                               bestDay && day?.date === bestDay.date
                                 ? `2px solid ${outlineColor}`
                                 : "none",
-                            outlineOffset: "1px",
+                            outlineOffset: "2px",
                           }}
                           onMouseEnter={(e) => {
                             if (!day) return;
@@ -242,35 +292,29 @@ function GithubActivity({ username, theme = "dark", className }: Props) {
               </div>
             </div>
 
-            {/* Legend */}
-            <div className="flex items-center gap-1 mt-3 text-[11px] text-neutral-400">
-              Less
-              {colors.map((c, i) => (
-                <div
-                  key={i}
-                  className="w-[13px] h-[13px] rounded-[3px]"
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-              More
-            </div>
+            {/* Footer Section */}
+            <div className={`space-y-4 border-t ${isDark ? "border-neutral-800/40" : "border-neutral-200/40"} pt-5 mt-5`}>
+              
 
-            {/* Year selector */}
-            <div className="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-neutral-800">
-              <span className="text-[11px] text-neutral-400 mr-1">Year:</span>
-              <YearPill
-                label="Last year"
-                active={selectedYear === "last"}
-                onClick={() => setSelectedYear("last")}
-              />
-              {years.map((y) => (
+              {/* Year selector */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-xs font-medium ${textLabelClass} uppercase tracking-wide mr-1`}>
+                  Year:
+                </span>
                 <YearPill
-                  key={y}
-                  label={String(y)}
-                  active={selectedYear === y}
-                  onClick={() => setSelectedYear(y)}
+                  label="Last year"
+                  active={selectedYear === "last"}
+                  onClick={() => setSelectedYear("last")}
                 />
-              ))}
+                {years.map((y) => (
+                  <YearPill
+                    key={y}
+                    label={String(y)}
+                    active={selectedYear === y}
+                    onClick={() => setSelectedYear(y)}
+                  />
+                ))}
+              </div>
             </div>
           </>
         )}
